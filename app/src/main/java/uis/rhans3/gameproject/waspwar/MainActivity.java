@@ -55,6 +55,11 @@ public class MainActivity extends Activity {
     final int backGroundColor       = Color.GREEN;
     public static int[] highscores  = new int[] {0, 0, 0, 0, 0};
 
+    Bitmap mute, unmute;
+    Boolean muted;
+    int muteX;
+    int muteY;
+
 	//what runs when the app instance is created
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +84,10 @@ public class MainActivity extends Activity {
         bugBomb.setSmoke2(BitmapFactory.decodeResource(getResources(), R.drawable.smoke2));
         bugBomb.setBombSpawnTime();
         bugBomb.setBombEndInterval();
+
+        mute = BitmapFactory.decodeResource(getResources(), R.drawable.mute);
+        unmute = BitmapFactory.decodeResource(getResources(), R.drawable.unmute);
+        muted = false;
 
 		grass  = BitmapFactory.decodeResource(getResources(), R.drawable.grass);
         score1 = (TextView) this.findViewById(R.id.textView1);
@@ -333,6 +342,8 @@ public class MainActivity extends Activity {
 		protected void onDraw(Canvas canvas){
 			drawPaint.setAlpha(255);
 			canvas.drawColor(backGroundColor);
+            muteX = (canvas.getWidth() - mute.getWidth()) - 20;
+            muteY = (canvas.getHeight()- canvas.getHeight()) + 20;
             //canvas.drawBitmap(grass, 0, 0, drawPaint);
 
 			//Delete comments here to see the rectangles visually for verification
@@ -341,6 +352,14 @@ public class MainActivity extends Activity {
 			//canvas.drawRect(bob.bobRect, rectPaint);
 			
 			canvas.drawBitmap(bob.getBob(), bob.getBobX(), bob.getBobY(), drawPaint);
+
+            if (!muted){
+                canvas.drawBitmap(unmute, muteX, muteY, drawPaint);
+            }
+            else
+            {
+                canvas.drawBitmap(mute, muteX, muteY, drawPaint);
+            }
 
 			if (bugBomb.showBomb())
 			{
@@ -384,7 +403,7 @@ public class MainActivity extends Activity {
 			{
 				if (hive.getBrokenHiveTime() <= 15)
 				{
-					hive.setBrokenHiveX(hive.getHiveX() - (hive.getBrokenhive1().getWidth()/2));
+					hive.setBrokenHiveX(hive.getHiveX() - (hive.getBrokenhive1().getWidth() / 2));
 					hive.setBrokenHiveY(hive.getHiveY() - (hive.getBrokenhive1().getHeight() - hive.getBrokenhive1().getHeight()));
 					canvas.drawBitmap(hive.getBrokenhive1(), hive.getBrokenHiveX(), hive.getBrokenHiveY(), drawPaint);
 				}else if (hive.getBrokenHiveTime() <= 30)
@@ -427,7 +446,9 @@ public class MainActivity extends Activity {
 						load();
 						addScore(myTime);
 						save();
-						soundPool.play(mySound, 1, 1, 0, 0, 1);
+                        if (!muted) {
+                            soundPool.play(mySound, 1, 1, 0, 0, 1);
+                        }
 						showScores(gv);
 						break;
 					}
@@ -445,9 +466,12 @@ public class MainActivity extends Activity {
 			if(hive.showHive() && Rect.intersects(hive.getHiveRect(), bob.getBobRect()))
 			{
                 // Add a random number of new wasps to the game
-				soundPool.play(hive.hiveBreakingInitial, 1, 1, 0, 0, 2);
-				soundPool.play(hive.hiveBreaking, 1, 1, 0, 0, 2);
-				hive.setShowBrokenHive(true);
+
+                if (!muted) {
+                    soundPool.play(hive.hiveBreakingInitial, 1, 1, 0, 0, 2);
+                    soundPool.play(hive.hiveBreaking, 1, 1, 0, 0, 2);
+                }
+                hive.setShowBrokenHive(true);
 				if (hive.showHive())
 					wasp.addMultipleWasps(rand.nextInt(hive.getMaxHiveWasp() - hive.getMinHiveWasp()) + hive.getMinHiveWasp());
 				hive.setShowHive(false);
@@ -458,21 +482,23 @@ public class MainActivity extends Activity {
 			if(bugBomb.showBomb() && Rect.intersects(bugBomb.getBugBombRect(), bob.getBobRect()))
 			{
 				// Bob has set off the BugBomb.
-				soundPool.play(bugBomb.getBugBombExplode(), 1, 1, 0, 0, 2);
-				bugBomb.setShowSmoke(true);
+                if(!muted) {
+                    soundPool.play(bugBomb.getBugBombExplode(), 1, 1, 0, 0, 2);
+                }
+                bugBomb.setShowSmoke(true);
 				bugBomb.setShowBomb(false);
 				bugBomb.nullifyBugBombRect();
-				bugBomb.setLastBombTime(myTime/100);
+				bugBomb.setLastBombTime(myTime / 100);
 				bugBomb.setBombSpawnTime();
 			}
 			
 			if(weedw.showWeedWacker() && Rect.intersects(weedw.getWWRect(), bob.getBobRect()))
 			{
                 // Bob has picked up the weed wacker
-				if (weedw.showWeedWacker())
+                if (weedw.showWeedWacker())
 				{
 					bob.setBob(bob.getBobWW());  // Show Bob as holding the weed wacker
-					bob.setBobHoldWW(true);
+                    bob.setBobHoldWW(true);
 					bob.setBobWWEndTime(myTime); // Bob can only hold the wacker for a certain time
 				}
 				weedw.setShowWeedWacker(false);
@@ -582,7 +608,7 @@ public class MainActivity extends Activity {
 			switch (event.getAction()){
 			case MotionEvent.ACTION_DOWN :
 			{
-				touchX = event.getRawX();
+                touchX = event.getRawX();
 				touchY = event.getRawY() - 200;
 				if(touchX > bob.getBobX()
 					&& touchX < bob.getBobX() + bob.getBob().getWidth()
@@ -590,6 +616,19 @@ public class MainActivity extends Activity {
 					&& touchY < bob.getBobY() + bob.getBob().getHeight()){
 					bob.setBobSelected(true);
 				}
+                else if (touchX > muteX && touchY > muteY)
+                {
+                    if (muted)
+                    {
+                        // unmute the sounds
+                        muted = false;
+                    }
+                    else
+                    {
+                        // mute the sounds
+                        muted = true;
+                    }
+                }
 			}
 			break;
 			case MotionEvent.ACTION_MOVE :
