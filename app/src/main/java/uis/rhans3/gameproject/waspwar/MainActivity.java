@@ -55,6 +55,7 @@ public class MainActivity extends Activity {
     final int DIFFICULTY            = 500;
     final int backGroundColor       = Color.GREEN;
     public static int[] highscores  = new int[] {0, 0, 0, 0, 0};
+    Dialog scoresDialog;
 
     Bitmap mute, unmute;
     Boolean muted;
@@ -96,6 +97,8 @@ public class MainActivity extends Activity {
         score3 = (TextView) this.findViewById(R.id.textView3);
         score4 = (TextView) this.findViewById(R.id.textView4);
         score5 = (TextView) this.findViewById(R.id.textView5);
+
+        scoresDialog = new Dialog(MainActivity.this);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         soundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
@@ -511,7 +514,6 @@ public class MainActivity extends Activity {
 			runOnUiThread(new Runnable() {
 		public void run() {
             pause();
-			final Dialog scoresDialog = new Dialog(MainActivity.this);
 			scoresDialog.setContentView(R.layout.high_scores);
 			final TextView scoreTitle = (TextView) scoresDialog.findViewById(R.id.textView6);
 			final TextView score1 = (TextView) scoresDialog.findViewById(R.id.textView1);
@@ -571,13 +573,19 @@ public class MainActivity extends Activity {
 				}
 				
 			});
-			scoreTitle.setText("OUCH!  You've been stung!  Your final score was " + myTime/10);
+			scoreTitle.setText("OUCH!  You've been stung!  Your final score was " + myTime / 10);
 			score1.setText("1. " + Integer.toString(highscores[0]));
 			score2.setText("2. " + Integer.toString(highscores[1]));
 			score3.setText("3. " + Integer.toString(highscores[2]));
 			score4.setText("4. " + Integer.toString(highscores[3]));
 			score5.setText("5. " + Integer.toString(highscores[4]));
-			
+
+            //********************************************************************************//
+            // Prevent the user from clicking outside the score dialog and seeing a paused
+            // game and not being able to do anything else.  Effectively, the game would
+            // appear frozen.
+            //********************************************************************************//
+			scoresDialog.setCanceledOnTouchOutside(false);
 			scoresDialog.show();
 				  }
 			});
