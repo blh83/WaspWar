@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
 
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -525,7 +526,11 @@ public class MainActivity extends Activity {
 
 				@Override
 				public void onClick(View v) {
-					System.exit(0);
+                // this will quit the app through our Landing Page class via onActivityResult()
+                Intent intent = getIntent();
+                intent.putExtra("exit", 1);
+                setResult(RESULT_OK, intent);
+                finish();
 				}
 				
 			});

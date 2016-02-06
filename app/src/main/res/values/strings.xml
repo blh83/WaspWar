@@ -4,5 +4,8 @@
     <string name="app_name">WaspWar</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="play_wasp_war">Play Wasp Wars!</string>
+    <!-- The following string can be used to change the title of our landing page, if we want to-->
+    <string name="title_activity_wasp_war_landing_page">WaspWarLandingPage</string>
 
 </resources>

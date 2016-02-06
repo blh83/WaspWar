@@ -19,6 +19,6 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
     compile project(':svg-android-1.1')
+    compile 'com.android.support:support-v4:19.1.0'
 }
