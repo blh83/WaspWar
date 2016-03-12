@@ -57,10 +57,10 @@ public class MainActivity extends Activity {
     public static int[] highscores  = new int[] {0, 0, 0, 0, 0};
     Dialog scoresDialog;
 
-    Bitmap mute, unmute;
-    Boolean muted;
-    int muteX;
-    int muteY;
+    Bitmap pause;
+    Boolean muted, paused;
+    int pauseX;
+    int pauseY;
 
 	//what runs when the app instance is created
 	@Override
@@ -87,9 +87,9 @@ public class MainActivity extends Activity {
         bugBomb.setBombSpawnTime();
         bugBomb.setBombEndInterval();
 
-        mute = BitmapFactory.decodeResource(getResources(), R.drawable.mute);
-        unmute = BitmapFactory.decodeResource(getResources(), R.drawable.unmute);
+        pause = BitmapFactory.decodeResource(getResources(), R.drawable.pause);
         muted = false;
+        paused = false;
 
 		grass  = BitmapFactory.decodeResource(getResources(), R.drawable.grass);
         score1 = (TextView) this.findViewById(R.id.textView1);
@@ -97,8 +97,6 @@ public class MainActivity extends Activity {
         score3 = (TextView) this.findViewById(R.id.textView3);
         score4 = (TextView) this.findViewById(R.id.textView4);
         score5 = (TextView) this.findViewById(R.id.textView5);
-
-        scoresDialog = new Dialog(MainActivity.this);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         soundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
@@ -346,8 +344,8 @@ public class MainActivity extends Activity {
 		protected void onDraw(Canvas canvas){
 			drawPaint.setAlpha(255);
 			canvas.drawColor(backGroundColor);
-            muteX = (canvas.getWidth() - mute.getWidth()) - 20;
-            muteY = (canvas.getHeight()- canvas.getHeight()) + 20;
+            pauseX = (canvas.getWidth() - pause.getWidth()) - 20;
+            pauseY = (canvas.getHeight()- canvas.getHeight()) + 20;
             //canvas.drawBitmap(grass, 0, 0, drawPaint);
 
 			//Delete comments here to see the rectangles visually for verification
@@ -356,14 +354,7 @@ public class MainActivity extends Activity {
 			//canvas.drawRect(bob.bobRect, rectPaint);
 			
 			canvas.drawBitmap(bob.getBob(), bob.getBobX(), bob.getBobY(), drawPaint);
-
-            if (!muted){
-                canvas.drawBitmap(unmute, muteX, muteY, drawPaint);
-            }
-            else
-            {
-                canvas.drawBitmap(mute, muteX, muteY, drawPaint);
-            }
+            canvas.drawBitmap(pause, pauseX, pauseY, drawPaint);
 
 			if (bugBomb.showBomb())
 			{
@@ -469,13 +460,12 @@ public class MainActivity extends Activity {
             }
 			if(hive.showHive() && Rect.intersects(hive.getHiveRect(), bob.getBobRect()))
 			{
-                // Add a random number of new wasps to the game
-
                 if (!muted) {
                     soundPool.play(hive.hiveBreakingInitial, 1, 1, 0, 0, 2);
                     soundPool.play(hive.hiveBreaking, 1, 1, 0, 0, 2);
                 }
                 hive.setShowBrokenHive(true);
+                // Add a random number of new wasps to the game
 				if (hive.showHive())
 					wasp.addMultipleWasps(rand.nextInt(hive.getMaxHiveWasp() - hive.getMinHiveWasp()) + hive.getMinHiveWasp());
 				hive.setShowHive(false);
@@ -485,10 +475,10 @@ public class MainActivity extends Activity {
 			}
 			if(bugBomb.showBomb() && Rect.intersects(bugBomb.getBugBombRect(), bob.getBobRect()))
 			{
-				// Bob has set off the BugBomb.
                 if(!muted) {
                     soundPool.play(bugBomb.getBugBombExplode(), 1, 1, 0, 0, 2);
                 }
+                // Bob has set off the BugBomb.
                 bugBomb.setShowSmoke(true);
 				bugBomb.setShowBomb(false);
 				bugBomb.nullifyBugBombRect();
@@ -511,87 +501,90 @@ public class MainActivity extends Activity {
 		}
 		
 		public void showScores(View view){
-			runOnUiThread(new Runnable() {
-		public void run() {
-            pause();
-			scoresDialog.setContentView(R.layout.high_scores);
-			final TextView scoreTitle = (TextView) scoresDialog.findViewById(R.id.textView6);
-			final TextView score1 = (TextView) scoresDialog.findViewById(R.id.textView1);
-			final TextView score2 = (TextView) scoresDialog.findViewById(R.id.textView2);
-			final TextView score3 = (TextView) scoresDialog.findViewById(R.id.textView3);
-			final TextView score4 = (TextView) scoresDialog.findViewById(R.id.textView4);
-			final TextView score5 = (TextView) scoresDialog.findViewById(R.id.textView5);
-			final Button quit = (Button) scoresDialog.findViewById(R.id.quit);
-			final Button replay = (Button) scoresDialog.findViewById(R.id.play1);
-			
-			quit.setOnClickListener(new Button.OnClickListener(){
+        	runOnUiThread(new Runnable() {
+            public void run() {
+                pause();
+                WaspWarCustomDialog.OnDialogClickListener dialogListener = new WaspWarCustomDialog.OnDialogClickListener() {
+                    @Override
+                    public void playerRestarted() {
+                        bob = new Bob();
+                        bob.setBob(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
+                        bob.setBobOriginal(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
+                        bob.setBobWW(BitmapFactory.decodeResource(getResources(), R.drawable.bobweed));
+                        bob.setBobRect();
+                        touchX = 0;
+                        touchY = 0;
+                        myTime = 0;
 
-				@Override
-				public void onClick(View v) {
-                // this will quit the app through our Landing Page class via onActivityResult()
-                Intent intent = getIntent();
-                intent.putExtra("exit", 1);
-                setResult(RESULT_OK, intent);
-                finish();
-				}
-				
-			});
-			
-			replay.setOnClickListener(new Button.OnClickListener(){
+                        hive.setShowHive(false);
+                        hive.setShowBrokenHive(false);
+                        hive.setLastHiveTime(0);
+                        hive.nullifyHiveRect();
+                        hive.nullifyBrokenHiveRect();
 
-				@Override
-				public void onClick(View v) {
-					bob = new Bob();
-                    bob.setBob(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
-                    bob.setBobOriginal(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
-                    bob.setBobWW(BitmapFactory.decodeResource(getResources(), R.drawable.bobweed));
-                    bob.setBobRect();
-                    touchX = 0;
-					touchY = 0;
-                    myTime = 0;
+                        bugBomb.setShowSmoke(false);
+                        bugBomb.nullifySmokeRect();
+                        bugBomb.nullifyBugBombRect();
+                        bugBomb.setShowBomb(false);
+                        bugBomb.setLastBombTime(0);
 
-					hive.setShowHive(false);
-                    hive.setShowBrokenHive(false);
-                    hive.setLastHiveTime(0);
-                    hive.nullifyHiveRect();
-                    hive.nullifyBrokenHiveRect();
+                        weedw.nullifyWWRect();
+                        weedw.setLastWWTime(0);
 
-                    bugBomb.setShowSmoke(false);
-                    bugBomb.nullifySmokeRect();
-                    bugBomb.nullifyBugBombRect();
-                    bugBomb.setShowBomb(false);
-                    bugBomb.setLastBombTime(0);
+                        wasp.clearWaspList();
+                        wasp.addWasp(wasp.getDefaultWaspWidth(), wasp.getDefaultWaspHeight());
 
-                    weedw.nullifyWWRect();
-                    weedw.setLastWWTime(0);
+                        paused = false;
+                        scoresDialog.dismiss();
+                        resume();
+                    }
 
-                    wasp.clearWaspList();
-                    wasp.addWasp(wasp.getDefaultWaspWidth(), wasp.getDefaultWaspHeight());
+                    @Override
+                    public void playerResumed() {
+                        paused = false;
+                        resume();
+                    }
 
-					scoresDialog.dismiss();
-					resume();
-				}
-				
-			});
-			scoreTitle.setText("OUCH!  You've been stung!  Your final score was " + myTime / 10);
-			score1.setText("1. " + Integer.toString(highscores[0]));
-			score2.setText("2. " + Integer.toString(highscores[1]));
-			score3.setText("3. " + Integer.toString(highscores[2]));
-			score4.setText("4. " + Integer.toString(highscores[3]));
-			score5.setText("5. " + Integer.toString(highscores[4]));
+                    @Override
+                    public void playerQuit() {
+                        paused = false;
+                        // this will quit the app through our Landing Page class via onActivityResult()
+                        Intent intent = getIntent();
+                        intent.putExtra("exit", 1);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
 
-            //********************************************************************************//
-            // Prevent the user from clicking outside the score dialog and seeing a paused
-            // game and not being able to do anything else.  Effectively, the game would
-            // appear frozen.
-            //********************************************************************************//
-			scoresDialog.setCanceledOnTouchOutside(false);
-			scoresDialog.show();
-				  }
-			});
+                    @Override
+                    public void playerMuted() {
+                        if (muted)
+                        {
+                            // unmute the sounds
+                            muted = false;
+                        }
+                        else
+                        {
+                            // mute the sounds
+                            muted = true;
+                        }
+                        paused = false;
+                        scoresDialog.dismiss();
+                        resume();
+                    }
+                };
+                scoresDialog = new WaspWarCustomDialog(MainActivity.this, dialogListener, paused, myTime, highscores);
+
+                //********************************************************************************//
+                // Prevent the user from clicking outside the score dialog and seeing a paused
+                // game and not being able to do anything else.  Effectively, the game would
+                // appear frozen.
+                //********************************************************************************//
+                scoresDialog.setCanceledOnTouchOutside(false);
+                scoresDialog.show();
+
+                      }
+                });
 		}
-			
-		
 		
 		public void pause() {
 			threadOK = false;
@@ -629,18 +622,10 @@ public class MainActivity extends Activity {
 					&& touchY < bob.getBobY() + bob.getBob().getHeight()){
 					bob.setBobSelected(true);
 				}
-                else if (touchX > muteX && touchY > muteY)
+                else if (touchX > pauseX && touchY > pauseY)
                 {
-                    if (muted)
-                    {
-                        // unmute the sounds
-                        muted = false;
-                    }
-                    else
-                    {
-                        // mute the sounds
-                        muted = true;
-                    }
+                    paused = true;
+                    showScores(gv);
                 }
 			}
 			break;
