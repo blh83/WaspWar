@@ -29,8 +29,9 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 public class MainActivity extends Activity {
 	GameView gv;
@@ -38,6 +39,8 @@ public class MainActivity extends Activity {
     Rect grassRect;
     SoundPool soundPool;
     TextView score1, score2, score3, score4, score5;
+    private Tracker mTracker;
+
 
     Bob bob                         = new Bob();
     Wasp wasp                       = new Wasp();
@@ -68,6 +71,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
         gv = new GameView(this);
         this.setContentView(gv);
+        WaspWars analytics = (WaspWars)getApplication();
+        mTracker = analytics.getDefaultTracker();
 
         bob.setBob(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
         bob.setBobOriginal(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
@@ -319,6 +324,12 @@ public class MainActivity extends Activity {
 						bob.setBobHoldWW(false);
 						bob.setBob(bob.getBobOriginal());
 						// We can now reset timer to spawn a weedwacker
+                        Long duration = (long)((myTime/100) - weedw.getLastWWTime());
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Timing")
+                                .setAction("WeedWackerDuration")
+                                .setValue(duration)
+                                .build());
 						weedw.setLastWWTime(myTime / 100);
 						weedw.setWWSpawnTime();
 						weedw.setWWEndInterval();
@@ -470,8 +481,12 @@ public class MainActivity extends Activity {
 					wasp.addMultipleWasps(rand.nextInt(hive.getMaxHiveWasp() - hive.getMinHiveWasp()) + hive.getMinHiveWasp());
 				hive.setShowHive(false);
 				hive.nullifyHiveRect();
-				hive.setLastHiveTime(myTime/100);
+				hive.setLastHiveTime(myTime / 100);
 				hive.setHiveSpawnTime();
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("BobAction")
+                        .setAction("HiveBroken")
+                        .build());
 			}
 			if(bugBomb.showBomb() && Rect.intersects(bugBomb.getBugBombRect(), bob.getBobRect()))
 			{
@@ -484,6 +499,10 @@ public class MainActivity extends Activity {
 				bugBomb.nullifyBugBombRect();
 				bugBomb.setLastBombTime(myTime / 100);
 				bugBomb.setBombSpawnTime();
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("BobAction")
+                        .setAction("BugBomb")
+                        .build());
 			}
 			
 			if(weedw.showWeedWacker() && Rect.intersects(weedw.getWWRect(), bob.getBobRect()))
@@ -507,6 +526,10 @@ public class MainActivity extends Activity {
                 WaspWarCustomDialog.OnDialogClickListener dialogListener = new WaspWarCustomDialog.OnDialogClickListener() {
                     @Override
                     public void playerRestarted() {
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Action")
+                                .setAction("ReStart")
+                                .build());
                         bob = new Bob();
                         bob.setBob(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
                         bob.setBobOriginal(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
@@ -547,6 +570,10 @@ public class MainActivity extends Activity {
 
                     @Override
                     public void playerQuit() {
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Action")
+                                .setAction("Quit")
+                                .build());
                         paused = false;
                         // this will quit the app through our Landing Page class via onActivityResult()
                         Intent intent = getIntent();
@@ -561,11 +588,19 @@ public class MainActivity extends Activity {
                         {
                             // unmute the sounds
                             muted = false;
+                            mTracker.send(new HitBuilders.EventBuilder()
+                                    .setCategory("Action")
+                                    .setAction("UnMute")
+                                    .build());
                         }
                         else
                         {
                             // mute the sounds
                             muted = true;
+                            mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Action")
+                                .setAction("Mute")
+                                .build());
                         }
                         paused = false;
                         scoresDialog.dismiss();
