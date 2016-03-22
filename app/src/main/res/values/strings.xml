@@ -7,5 +7,8 @@
     <string name="play_wasp_war">Play Wasp Wars!</string>
     <!-- The following string can be used to change the title of our landing page, if we want to-->
     <string name="title_activity_wasp_war_landing_page">WaspWarLandingPage</string>
+    <!-- The following string is an ad unit id. We need one for each activity in which we want to show ads
+         Currently, this unit id is a test id and needs to be changed before going live-->
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 
 </resources>

@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -88,8 +90,17 @@ public class WaspWarLandingPage extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_wasp_war_landing_page);
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        //AdRequest adRequest = new AdRequest.Builder().build();
+        
+        // THE FOLLOWING ADREQUEST IS FOR TESTING PURPOSES. WHEN WE GO LIVE, WE NEED TO USE THE LINE ABOVE
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+                .addTestDevice("AC98C820A50B4AD8A2106EDE96FB87D4")  // An example device ID
+                .build();
+
+        mAdView.loadAd(adRequest);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
