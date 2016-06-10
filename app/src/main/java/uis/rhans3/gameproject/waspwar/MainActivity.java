@@ -74,9 +74,9 @@ public class MainActivity extends Activity {
         WaspWars analytics = (WaspWars)getApplication();
         mTracker = analytics.getDefaultTracker();
 
-        bob.setBob(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
-        bob.setBobOriginal(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
-        bob.setBobWW(BitmapFactory.decodeResource(getResources(), R.drawable.bobweed));
+        bob.setBob(BitmapFactory.decodeResource(getResources(), R.drawable.bobfront));
+        bob.setBobOriginal(BitmapFactory.decodeResource(getResources(), R.drawable.bobfront));
+        bob.setBobWW(BitmapFactory.decodeResource(getResources(), R.drawable.bobfrontweed));
         wasp.setWasp(BitmapFactory.decodeResource(getResources(), R.drawable.wasp));
         wasp.addWasp(wasp.getDefaultWaspWidth(), wasp.getDefaultWaspHeight());
         hive.setHive(BitmapFactory.decodeResource(getResources(), R.drawable.hive));
@@ -87,8 +87,8 @@ public class MainActivity extends Activity {
         weedw.setWWSpawnTime();
         weedw.setWWEndInterval();
         bugBomb.setBugBomb(BitmapFactory.decodeResource(getResources(), R.drawable.bugbomb));
-        bugBomb.setSmoke(BitmapFactory.decodeResource(getResources(), R.drawable.smoke));
-        bugBomb.setSmoke2(BitmapFactory.decodeResource(getResources(), R.drawable.smoke2));
+        bugBomb.setSmoke(BitmapFactory.decodeResource(getResources(), R.drawable.bombsmoke));
+        bugBomb.setSmoke2(BitmapFactory.decodeResource(getResources(), R.drawable.bombsmoke2));
         bugBomb.setBombSpawnTime();
         bugBomb.setBombEndInterval();
 
@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
         muted = false;
         paused = false;
 
-		grass  = BitmapFactory.decodeResource(getResources(), R.drawable.grass);
+		grass  = BitmapFactory.decodeResource(getResources(), R.drawable.grassgrow3);
         score1 = (TextView) this.findViewById(R.id.textView1);
         score2 = (TextView) this.findViewById(R.id.textView2);
         score3 = (TextView) this.findViewById(R.id.textView3);
@@ -531,9 +531,9 @@ public class MainActivity extends Activity {
                                 .setAction("ReStart")
                                 .build());
                         bob = new Bob();
-                        bob.setBob(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
-                        bob.setBobOriginal(BitmapFactory.decodeResource(getResources(), R.drawable.bob));
-                        bob.setBobWW(BitmapFactory.decodeResource(getResources(), R.drawable.bobweed));
+                        bob.setBob(BitmapFactory.decodeResource(getResources(), R.drawable.bobfront));
+                        bob.setBobOriginal(BitmapFactory.decodeResource(getResources(), R.drawable.bobfront));
+                        bob.setBobWW(BitmapFactory.decodeResource(getResources(), R.drawable.bobfrontweed));
                         bob.setBobRect();
                         touchX = 0;
                         touchY = 0;
