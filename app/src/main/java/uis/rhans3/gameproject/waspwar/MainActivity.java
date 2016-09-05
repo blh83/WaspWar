@@ -20,7 +20,6 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
@@ -28,19 +27,29 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.widget.TextView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity{
+    public static int GRASS_ROWS = 6;
+    public static int GRASS_COLUMNS = 4;
+    public static int GRASS_UPDATE_INTERVAL = 1;
+    public static int GRASS_REGROW_INTERVAL = 10;
+
 	GameView gv;
-    Bitmap grass;
-    Rect grassRect;
     SoundPool soundPool;
     TextView score1, score2, score3, score4, score5;
     private Tracker mTracker;
-
+    DisplayMetrics metrics;
+    int windowWidth;
+    int windowHeight;
+    int cellWidth, cellHeight;
+    int numColumns, numRows;
+    private int[][] grassGrowLevel;
+    private Rect[][] grassRects;
+    private Bitmap[][] grassBitmaps;
+    private int[][] grassLastUpdateTime;
 
     Bob bob                         = new Bob();
     Wasp wasp                       = new Wasp();
@@ -51,12 +60,11 @@ public class MainActivity extends Activity {
     float touchX                    = 0;
     float touchY                    = 0;
     Paint drawPaint                 = new Paint();
-    Paint rectPaint                 = new Paint();
     String filename                 = ".waspwar";
     BugBomb bugBomb                 = new BugBomb();
     WeedWacker weedw                = new WeedWacker();
     final int DIFFICULTY            = 500;
-    final int backGroundColor       = Color.GREEN;
+    int lastGrassGrowTime           = myTime;
     public static int[] highscores  = new int[] {0, 0, 0, 0, 0};
     Dialog scoresDialog;
 
@@ -96,12 +104,34 @@ public class MainActivity extends Activity {
         muted = false;
         paused = false;
 
-		grass  = BitmapFactory.decodeResource(getResources(), R.drawable.grassgrow3);
         score1 = (TextView) this.findViewById(R.id.textView1);
         score2 = (TextView) this.findViewById(R.id.textView2);
         score3 = (TextView) this.findViewById(R.id.textView3);
         score4 = (TextView) this.findViewById(R.id.textView4);
         score5 = (TextView) this.findViewById(R.id.textView5);
+
+        // Grass initialization stuff
+        numColumns = 4;
+        numRows = 6;
+        metrics = getApplicationContext().getResources().getDisplayMetrics();
+        windowWidth = metrics.widthPixels;
+        windowHeight = metrics.heightPixels;
+        cellWidth = windowWidth / GRASS_COLUMNS;
+        cellHeight = windowHeight / GRASS_ROWS;
+        grassGrowLevel = new int[numColumns][numRows];
+        grassRects = new Rect[numColumns][numRows];
+        grassBitmaps = new Bitmap[numColumns][numRows];
+        grassLastUpdateTime = new int[numColumns][numRows];
+
+        for (int c = 0; c < numColumns; c++) {
+            for (int r = 0; r < numRows; r++) {
+                grassGrowLevel[c][r] = 3;
+                grassRects[c][r] = new Rect(c * cellWidth, r * cellHeight,
+                        (c + 1) * cellWidth, (r + 1) * cellHeight);
+                grassBitmaps[c][r] = BitmapFactory.decodeResource(getResources(), R.drawable.grassgrow3);
+                grassLastUpdateTime[c][r] = myTime;
+            }
+        }
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         soundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
@@ -122,12 +152,8 @@ public class MainActivity extends Activity {
 
     void init()
     {
-        Canvas c = new Canvas(grass);
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        grassRect = new Rect(0, 0, dm.widthPixels, dm.heightPixels);
-        c.drawRect(grassRect, rectPaint);
     }
+
 	//this will load high scores from a file
 	public void load(){
 		File myFile = getFileStreamPath(filename);
@@ -139,13 +165,11 @@ public class MainActivity extends Activity {
 					highscores[i] = Integer.parseInt(in.readLine());
 				}
 				in.close();
-				
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
 		}
 	}
 	
@@ -160,13 +184,11 @@ public class MainActivity extends Activity {
 				outputStream.write(temp.getBytes());
 			}
 			outputStream.close();
-			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public void addScore(int score) {
@@ -201,12 +223,12 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
-	//this section actually creates the game.
+    //this section actually creates the game.
 	public class GameView extends SurfaceView implements Runnable{
-	    SurfaceHolder holder;
+        SurfaceHolder holder;
         Thread ViewThread = null;
         boolean threadOK  = true;
-		
+
 		public GameView(Context context) {
 			super(context);
 			holder = this.getHolder();
@@ -335,6 +357,11 @@ public class MainActivity extends Activity {
 						weedw.setWWEndInterval();
 					}
 				}
+
+                if ((myTime/100) > (lastGrassGrowTime + GRASS_REGROW_INTERVAL)) {
+                    growTheGrass();
+                    lastGrassGrowTime = myTime/100;
+                }
 				  
 				Canvas gameCanvas = holder.lockCanvas();
 
@@ -345,25 +372,26 @@ public class MainActivity extends Activity {
 			       				waspFromList.x + (wasp.getWasp().getWidth()-20),
 			       				waspFromList.y + (wasp.getWasp().getHeight()-10));
 				}
-				onDraw(gameCanvas);
+				canvasDraw(gameCanvas);
 				holder.unlockCanvasAndPost(gameCanvas);
 				myTime++;
 			}
 		}
 		
 		//this is what happens when the canvas is drawn
-		protected void onDraw(Canvas canvas){
+		protected void canvasDraw(Canvas canvas){
 			drawPaint.setAlpha(255);
-			canvas.drawColor(backGroundColor);
-            pauseX = (canvas.getWidth() - pause.getWidth()) - 20;
-            pauseY = (canvas.getHeight()- canvas.getHeight()) + 20;
-            //canvas.drawBitmap(grass, 0, 0, drawPaint);
+            pauseX = (windowWidth - pause.getWidth()) - 20;
+            pauseY = 20;
+            Paint drawPaint = new Paint();
 
-			//Delete comments here to see the rectangles visually for verification
-			//rectPaint.setAlpha(255);
-			//rectPaint.setColor(Color.WHITE);
-			//canvas.drawRect(bob.bobRect, rectPaint);
-			
+            // Draw our grass grid
+            for (int c = 0; c < numColumns; c++) {
+                for (int r = 0; r < numRows; r++) {
+                    canvas.drawBitmap(grassBitmaps[c][r], null, grassRects[c][r], drawPaint);
+                }
+            }
+
 			canvas.drawBitmap(bob.getBob(), bob.getBobX(), bob.getBobY(), drawPaint);
             canvas.drawBitmap(pause, pauseX, pauseY, drawPaint);
 
@@ -377,6 +405,7 @@ public class MainActivity extends Activity {
 				}
 				canvas.drawBitmap(bugBomb.getBugBomb(), bugBomb.getBugBombX(), bugBomb.getBugBombY(), drawPaint);
 			}
+
 			if (hive.showHive())
 			{
 				if (hive.getHiveRect() == null)
@@ -433,7 +462,34 @@ public class MainActivity extends Activity {
 				}
 				canvas.drawBitmap(weedw.getWeedWacker(), weedw.getWeedWackerX(), weedw.getWeedWackerY(), drawPaint);
 			}
-			
+
+            // Cut the grass for the square Bob is in, if appropriate
+            for (int c = 0; c < numColumns; c++) {
+                for (int r = 0; r < numRows; r++) {
+                    if (Rect.intersects(bob.getBobRect(), grassRects[c][r])) {
+                        if ((myTime/ 100) > grassLastUpdateTime[c][r] + GRASS_UPDATE_INTERVAL) {
+                            grassLastUpdateTime[c][r] = myTime/100;
+                            switch (grassGrowLevel[c][r]) {
+                                case 3:
+                                    grassBitmaps[c][r] = BitmapFactory.decodeResource(getResources(), R.drawable.grassgrow2);
+                                    grassGrowLevel[c][r] = 2;
+                                    break;
+                                case 2:
+                                    grassBitmaps[c][r] = BitmapFactory.decodeResource(getResources(), R.drawable.grassgrow1);
+                                    grassGrowLevel[c][r] = 1;
+                                    break;
+                                case 1:
+                                    grassBitmaps[c][r] = BitmapFactory.decodeResource(getResources(), R.drawable.grasscut);
+                                    grassGrowLevel[c][r] = 0;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+
 			for(int i = 0; i < wasp.getWaspListSize(); i++){
 				//this gets the wasps individual speed and location behavior
 				wasp.getWaspFromList(i).update(canvas.getWidth(), canvas.getHeight());
@@ -455,11 +511,12 @@ public class MainActivity extends Activity {
                         if (!muted) {
                             soundPool.play(mySound, 1, 1, 0, 0, 1);
                         }
-						showScores(gv);
+						showScores();
 						break;
 					}
 				}
 			}
+
 			if(bugBomb.showSmoke())
             {
                 for(int i = 0; i < wasp.getWaspListSize(); i++){
@@ -469,6 +526,7 @@ public class MainActivity extends Activity {
                     }
                 }
             }
+
 			if(hive.showHive() && Rect.intersects(hive.getHiveRect(), bob.getBobRect()))
 			{
                 if (!muted) {
@@ -488,6 +546,7 @@ public class MainActivity extends Activity {
                         .setAction("HiveBroken")
                         .build());
 			}
+
 			if(bugBomb.showBomb() && Rect.intersects(bugBomb.getBugBombRect(), bob.getBobRect()))
 			{
                 if(!muted) {
@@ -518,8 +577,32 @@ public class MainActivity extends Activity {
 				weedw.nullifyWWRect();
 			}
 		}
+
+        // Function that is called on an interval to re-grow cut grass
+        private void growTheGrass(){
+            for (int c = 0; c < numColumns; c++) {
+                for (int r = 0; r < numRows; r++) {
+                    switch (grassGrowLevel[c][r]) {
+                        case 0:
+                            grassBitmaps[c][r] = BitmapFactory.decodeResource(getResources(), R.drawable.grassgrow1);
+                            grassGrowLevel[c][r] = 1;
+                            break;
+                        case 1:
+                            grassBitmaps[c][r] = BitmapFactory.decodeResource(getResources(), R.drawable.grassgrow2);
+                            grassGrowLevel[c][r] = 2;
+                            break;
+                        case 2:
+                            grassBitmaps[c][r] = BitmapFactory.decodeResource(getResources(), R.drawable.grassgrow3);
+                            grassGrowLevel[c][r] = 3;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
 		
-		public void showScores(View view){
+		public void showScores(){
         	runOnUiThread(new Runnable() {
             public void run() {
                 pause();
@@ -556,6 +639,16 @@ public class MainActivity extends Activity {
 
                         wasp.clearWaspList();
                         wasp.addWasp(wasp.getDefaultWaspWidth(), wasp.getDefaultWaspHeight());
+
+                        // Start the grass as fully grown
+                        for (int c = 0; c < numColumns; c++) {
+                            for (int r = 0; r < numRows; r++) {
+                                // No need to reset the grass Rects since they won't change.
+                                grassGrowLevel[c][r] = 3;
+                                grassBitmaps[c][r] = BitmapFactory.decodeResource(getResources(), R.drawable.grassgrow3);
+                                grassLastUpdateTime[c][r] = myTime;
+                            }
+                        }
 
                         paused = false;
                         scoresDialog.dismiss();
@@ -616,9 +709,8 @@ public class MainActivity extends Activity {
                 //********************************************************************************//
                 scoresDialog.setCanceledOnTouchOutside(false);
                 scoresDialog.show();
-
-                      }
-                });
+                }
+            });
 		}
 		
 		public void pause() {
@@ -660,7 +752,7 @@ public class MainActivity extends Activity {
                 else if (touchX > pauseX && touchY > pauseY)
                 {
                     paused = true;
-                    showScores(gv);
+                    showScores();
                 }
 			}
 			break;
