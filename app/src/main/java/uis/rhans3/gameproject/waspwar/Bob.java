@@ -89,7 +89,7 @@ public class Bob {
     }
     public Bitmap getBob()
     {
-        return this.bob;
+        return bob;
     }
 
     public void setBob(Bitmap bob)
