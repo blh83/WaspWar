@@ -82,6 +82,8 @@ public class MainActivity extends Activity{
         WaspWars analytics = (WaspWars)getApplication();
         mTracker = analytics.getDefaultTracker();
 
+		getActionBar().hide();
+
         bob.setBob(BitmapFactory.decodeResource(getResources(), R.drawable.bobfront));
         bob.setBobOriginal(BitmapFactory.decodeResource(getResources(), R.drawable.bobfront));
         bob.setBobWW(BitmapFactory.decodeResource(getResources(), R.drawable.bobfrontweed));

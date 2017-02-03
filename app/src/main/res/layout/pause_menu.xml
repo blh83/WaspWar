@@ -2,19 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:orientation="vertical" >
+              android:orientation="vertical"
+              android:background="@drawable/popupbackround"
+    android:baselineAligned="false">
 
-<TextView
-    android:id="@+id/textView6"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:text="TextView"
-    android:textSize="20sp"/>
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="TextView"
+        android:textSize="20sp"/>
 
-<Space
+    <Space
     android:layout_width="match_parent"
-    android:layout_height="20dp" />
+    android:layout_height="match_parent" />
 
 <TextView
     android:id="@+id/textView1"
@@ -72,31 +74,32 @@
     android:text="TextView"
     android:textSize="20sp" />
 
-<TableLayout
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
-    <TableRow
-        android:paddingTop="10dp"
-        android:gravity="center">
+        <TableRow
+            android:paddingTop="10dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/resume"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Resume"/>
+            <Button
+                android:id="@+id/resume"
+                android:background="@drawable/resumebutton"
+                android:layout_width="128dp" />
 
-        <Button
-            android:id="@+id/quit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quit" />
-        <Button
-            android:id="@+id/mute"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mute" />
-    </TableRow>
-</TableLayout>
+            <Button
+                android:id="@+id/quit"
+                android:layout_width="128dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/quitbutton" />
+
+            <Button
+                android:id="@+id/mute"
+                android:background="@drawable/mutebutton"
+                android:layout_width="128dp" />
+        </TableRow>
+    </TableLayout>
 
 </LinearLayout>

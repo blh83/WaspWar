@@ -45,18 +45,6 @@
             android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/playword"
-                android:id="@+id/play_button"
-                android:layout_gravity="center"
-                android:onClick="startGame"
-                android:layout_marginBottom="206dp"
-                android:hapticFeedbackEnabled="true"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true" />
-
             <com.google.android.gms.ads.AdView
                 android:id="@+id/adView"
                 android:layout_width="wrap_content"
@@ -67,6 +55,41 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentLeft="true">
             </com.google.android.gms.ads.AdView>
+
+            <Button
+                android:layout_width="128dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/playbutton"
+                android:id="@+id/play_button"
+                android:layout_gravity="center"
+                android:onClick="startGame"
+                android:hapticFeedbackEnabled="true"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+
+            <Button
+                android:layout_width="128dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/highscoresbutton"
+                android:id="@+id/highscores_button"
+                android:layout_gravity="center"
+                android:onClick=""
+                android:hapticFeedbackEnabled="true"
+                android:layout_alignBaseline="@+id/play_button"
+                android:layout_alignBottom="@+id/play_button"
+                android:layout_alignParentLeft="true" />
+
+            <Button
+                android:layout_width="128dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/tutorialbutton"
+                android:id="@+id/tutorial_button"
+                android:layout_gravity="center"
+                android:onClick=""
+                android:hapticFeedbackEnabled="true"
+                android:layout_alignBaseline="@+id/play_button"
+                android:layout_alignBottom="@+id/play_button"
+                android:layout_alignParentRight="true" />
 
         </RelativeLayout>
 
