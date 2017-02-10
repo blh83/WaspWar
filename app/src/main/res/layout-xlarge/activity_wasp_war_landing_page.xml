@@ -1,0 +1,102 @@
+<FrameLayout xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/waspwarstitlepage"
+    tools:context="ryanbrandongames.waspwars.WaspWarLandingPage"
+    >
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+
+    <TextView
+        android:id="@+id/fullscreen_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:keepScreenOn="false"
+        android:textColor="#33b5e5"
+        android:textSize="50sp"
+        android:textStyle="bold"/>
+
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <LinearLayout
+            android:id="@+id/fullscreen_content_controls"
+            style="?metaButtonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/black_overlay"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                ads:adSize="BANNER"
+                ads:adUnitId="@string/banner_ad_unit_id"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentLeft="true">
+            </com.google.android.gms.ads.AdView>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/highscoresbutton"
+                android:id="@+id/highscores_button"
+                android:layout_gravity="center"
+                android:onClick=""
+                android:hapticFeedbackEnabled="true"
+                android:layout_alignBaseline="@+id/play_button"
+                android:layout_alignBottom="@+id/play_button"
+                android:layout_centerHorizontal="true" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/playbutton"
+                android:id="@+id/play_button"
+                android:layout_gravity="center"
+                android:onClick="startGame"
+                android:hapticFeedbackEnabled="true"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/highscores_button"
+                android:layout_marginRight="87dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/tutorialbutton"
+                android:id="@+id/tutorial_button"
+                android:layout_gravity="center"
+                android:onClick=""
+                android:hapticFeedbackEnabled="true"
+                android:layout_alignBaseline="@+id/highscores_button"
+                android:layout_alignBottom="@+id/highscores_button"
+                android:layout_toRightOf="@+id/highscores_button"
+                android:layout_marginLeft="91dp" />
+
+        </RelativeLayout>
+
+    </FrameLayout>
+
+</FrameLayout>
+
+
