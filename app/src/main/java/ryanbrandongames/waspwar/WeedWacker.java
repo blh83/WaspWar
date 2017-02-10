@@ -1,4 +1,4 @@
-package uis.rhans3.gameproject.waspwar;
+package ryanbrandongames.waspwar;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;

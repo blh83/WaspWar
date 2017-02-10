@@ -1,4 +1,4 @@
-package uis.rhans3.gameproject.waspwar;
+package ryanbrandongames.waspwar;
 
 import java.io.BufferedReader;
 import java.io.File;

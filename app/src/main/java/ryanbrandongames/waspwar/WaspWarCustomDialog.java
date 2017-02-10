@@ -1,10 +1,9 @@
-package uis.rhans3.gameproject.waspwar;
+package ryanbrandongames.waspwar;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 

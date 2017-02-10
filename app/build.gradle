@@ -5,7 +5,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "uis.rhans3.gameproject.waspwar"
+        applicationId "ryanbrandongames.waspwar"
         minSdkVersion 16
         targetSdkVersion 16
     }

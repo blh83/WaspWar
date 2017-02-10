@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <lint>
     <issue id="WrongCall">
-        <ignore path="src/uis/rhans3/gameproject/fireandice/MainActivity.java" />
-        <ignore path="src/uis/rhans3/gameproject/waspwar/MainActivity.java" />
+        <ignore path="src/ryanbrandongames/rhans3/gameproject/fireandice/MainActivity.java" />
+        <ignore path="src/ryanbrandongames/rhans3/gameproject/waspwar/MainActivity.java" />
     </issue>
 </lint>

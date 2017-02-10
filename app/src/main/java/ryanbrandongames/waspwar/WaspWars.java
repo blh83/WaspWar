@@ -1,4 +1,4 @@
-package uis.rhans3.gameproject.waspwar;
+package ryanbrandongames.waspwar;
 /*
  * Copyright Google Inc. All Rights Reserved.
  *
