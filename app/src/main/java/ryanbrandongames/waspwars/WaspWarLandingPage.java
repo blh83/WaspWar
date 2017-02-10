@@ -1,4 +1,4 @@
-package ryanbrandongames.waspwar;
+package ryanbrandongames.waspwars;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;

@@ -1,4 +1,4 @@
-package ryanbrandongames.waspwar;
+package ryanbrandongames.waspwars;
 
 import android.app.Activity;
 import android.app.Dialog;

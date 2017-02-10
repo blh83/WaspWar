@@ -1,4 +1,4 @@
-package ryanbrandongames.waspwar;
+package ryanbrandongames.waspwars;
 /*
  * Copyright Google Inc. All Rights Reserved.
  *

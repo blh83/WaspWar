@@ -1,4 +1,4 @@
-package ryanbrandongames.waspwar;
+package ryanbrandongames.waspwars;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -60,7 +60,7 @@ public class MainActivity extends Activity{
     float touchX                    = 0;
     float touchY                    = 0;
     Paint drawPaint                 = new Paint();
-    String filename                 = ".waspwar";
+    String filename                 = ".waspwars";
     BugBomb bugBomb                 = new BugBomb();
     WeedWacker weedw                = new WeedWacker();
     final int DIFFICULTY            = 500;
