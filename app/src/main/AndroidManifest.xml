@@ -4,6 +4,9 @@
           android:versionCode="1"
           android:versionName="1.0">
 
+    <meta-data android:name="com.google.android.gms.games.APP_ID"
+        android:value="@string/app_id" />
+
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="16"/>

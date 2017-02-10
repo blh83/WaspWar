@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">WaspWar</string>
+    <string name="app_name">Wasp Wars</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="play_wasp_war">Play!</string>
@@ -10,5 +10,6 @@
     <!-- The following string is an ad unit id. We need one for each activity in which we want to show ads
          Currently, this unit id is a test id and needs to be changed before going live-->
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="app_id">449817633900</string>
 
 </resources>
