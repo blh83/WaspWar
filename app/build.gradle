@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 25
     buildToolsVersion "22.0.1"
 
     defaultConfig {
         applicationId "ryanbrandongames.waspwars"
-        minSdkVersion 16
-        targetSdkVersion 16
+        minSdkVersion 19
+        targetSdkVersion 25
     }
 
     buildTypes {
@@ -20,9 +20,10 @@ android {
 
 dependencies {
     compile project(':svg-android-1.1')
-    compile 'com.android.support:support-v4:19.1.0'
-    compile 'com.google.android.gms:play-services-analytics:8.4.0'
-    compile 'com.google.android.gms:play-services-ads:8.4.0'
+    compile 'com.android.support:support-v4:25.2.0'
+    compile 'com.google.android.gms:play-services-analytics:10.2.0'
+    compile 'com.google.android.gms:play-services-ads:10.2.0'
+    compile 'com.google.firebase:firebase-core:10.2.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

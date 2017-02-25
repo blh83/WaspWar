@@ -1,22 +1,29 @@
 {
   "project_info": {
-    "project_id": "waspwars-baaa8",
     "project_number": "449817633900",
-    "name": "WaspWars"
+    "firebase_url": "https://waspwars-baaa8.firebaseio.com",
+    "project_id": "waspwars-baaa8",
+    "storage_bucket": "waspwars-baaa8.appspot.com"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:449817633900:android:264d8b714f2ee93c",
-        "client_id": "android:com.ryanbrandon.waspwars",
-        "client_type": 1,
         "android_client_info": {
-          "package_name": "ryanbrandongames.waspwars",
-          "certificate_hash": []
+          "package_name": "com.ryanbrandon.waspwars"
         }
       },
-      "oauth_client": [],
-      "api_key": [],
+      "oauth_client": [
+        {
+          "client_id": "449817633900-4iec1uk54plaqgherup6pbjsa3nd6l6u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEhAHxqXrbpf2-Es2bf7iwyAREtNNOXls"
+        }
+      ],
       "services": {
         "analytics_service": {
           "status": 2,
@@ -24,23 +31,46 @@
             "tracking_id": "UA-75274376-1"
           }
         },
-        "cloud_messaging_service": {
+        "appinvite_service": {
           "status": 1,
-          "apns_config": []
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449817633900:android:e256d442e1f5cba8",
+        "android_client_info": {
+          "package_name": "ryanbrandongames.waspwars"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "449817633900-4iec1uk54plaqgherup6pbjsa3nd6l6u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEhAHxqXrbpf2-Es2bf7iwyAREtNNOXls"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
         },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
         },
-        "google_signin_service": {
-          "status": 1
-        },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }
   ],
-  "client_info": [],
-  "ARTIFACT_VERSION": "1"
+  "configuration_version": "1"
 }
