@@ -1,5 +1,35 @@
 package ryanbrandongames.waspwars;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
+import android.view.Menu;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.widget.TextView;
+
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.games.Games;
+import com.google.android.gms.games.Player;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,34 +38,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
 
-import android.content.Intent;
-import android.media.AudioManager;
-import android.media.SoundPool;
-import android.os.Bundle;
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.util.DisplayMetrics;
-import android.view.Menu;
-import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.widget.TextView;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 
-public class MainActivity extends Activity{
-    public static int GRASS_ROWS = 6;
-    public static int GRASS_COLUMNS = 4;
-    public static int GRASS_UPDATE_INTERVAL = 1;
-    public static int GRASS_REGROW_INTERVAL = 10;
+
+public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+    private static int GRASS_ROWS = 6;
+    private static int GRASS_COLUMNS = 4;
+    private static int GRASS_UPDATE_INTERVAL = 1;
+    private static int GRASS_REGROW_INTERVAL = 10;
+    private static int REQUEST_LEADERBOARD = 88658030;
+    private GoogleApiClient mGoogleApiClient;
 
 	GameView gv;
     SoundPool soundPool;
@@ -81,6 +92,11 @@ public class MainActivity extends Activity{
         this.setContentView(gv);
         WaspWars analytics = (WaspWars)getApplication();
         mTracker = analytics.getDefaultTracker();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+                .build();
 
 		getActionBar().hide();
 
@@ -162,7 +178,7 @@ public class MainActivity extends Activity{
 		if (myFile.exists()){
 			try {
 				BufferedReader in = new BufferedReader(new FileReader(myFile));
-				
+
 				for (int i = 0; i < 5; i++){
 					highscores[i] = Integer.parseInt(in.readLine());
 				}
@@ -174,7 +190,7 @@ public class MainActivity extends Activity{
 			}
 		}
 	}
-	
+
 	//this will load 
 	public void save() {
 		//Log.e("WaspWar", "Save1");
@@ -192,7 +208,7 @@ public class MainActivity extends Activity{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void addScore(int score) {
 		for (int i = 0; i < 5; i++){
 			if(highscores[i] < (score/10)) {
@@ -201,6 +217,22 @@ public class MainActivity extends Activity{
 				highscores[i] = score/10;
 				break;
 			}
+		}
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		//Log.d(TAG, "onStart(): connecting");
+		mGoogleApiClient.connect();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		//Log.d(TAG, "onStop(): disconnecting");
+		if (mGoogleApiClient.isConnected()) {
+			mGoogleApiClient.disconnect();
 		}
 	}
 
@@ -217,13 +249,15 @@ public class MainActivity extends Activity{
 		super.onResume();
 		gv.resume();
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+
+
 
     //this section actually creates the game.
 	public class GameView extends SurfaceView implements Runnable{
@@ -238,7 +272,7 @@ public class MainActivity extends Activity{
 
 		//this happens when the game is running
 		@Override
-		public void run() {		
+		public void run() {
 			while (threadOK){
 				if(!holder.getSurface().isValid()){
 					continue;
@@ -250,14 +284,14 @@ public class MainActivity extends Activity{
 				if(myTime % DIFFICULTY == 0){
 		               wasp.addWasp(wasp.getDefaultWaspWidth(), wasp.getDefaultWaspHeight());
 				}
-				  
+
 				// Spawn a Hive if the appropriate amount of time has passed.
 				if (((myTime/100) > (hive.getLastHiveTime() + hive.getHiveSpawnTime())) && !hive.showHive())
 				{
 					hive.setHiveEndTime((myTime/100) + hive.getHiveEndInterval());
 					hive.setShowHive(true);
 				}
-				
+
 				if (hive.showHive())
 				{
 					if ((myTime/100) >  hive.getHiveEndTime())
@@ -270,14 +304,14 @@ public class MainActivity extends Activity{
 						hive.setHiveEndInterval(); // Set a random end time for the next time a hive shows
 					}
 				}
-				
+
 				// Spawn a Bomb if the appropriate amount of time has passed.
 				if (((myTime/100) > (bugBomb.getLastBombTime() + bugBomb.getBombSpawnTime())) && !bugBomb.showBomb())
 				{
 					bugBomb.setBombEndTime((myTime / 100) + bugBomb.getBombEndInterval());
 					bugBomb.setShowBomb(true);
 				}
-				
+
 				if (bugBomb.showBomb())
 				{
 					if ((myTime/100) >  bugBomb.getBombEndTime())
@@ -290,7 +324,7 @@ public class MainActivity extends Activity{
 						bugBomb.setBombEndInterval(); // Set a random end time for the next time a bomb shows
 					}
 				}
-				
+
 				if (bugBomb.showSmoke())
 				{
 					if (bugBomb.getSmokeTime() > 30)
@@ -308,7 +342,7 @@ public class MainActivity extends Activity{
 						}
 					}
 				}
-				
+
 				if (hive.showBrokenHive())
 				{
 					if (hive.getBrokenHiveTime() > 45)
@@ -323,11 +357,11 @@ public class MainActivity extends Activity{
 
 				// Spawn a WeedWacker
 				if (((myTime/100) > (weedw.getLastWWTime() + weedw.getWWSpawnTime())) && !weedw.showWeedWacker() && !bob.isBobHoldingWW())
-				{					
+				{
 					weedw.setWWEndTime((myTime / 100) + weedw.getWWEndInterval()); // Set an end time for showing the weed wacker
 					weedw.setShowWeedWacker(true);
 				}
-				
+
 				if (weedw.showWeedWacker())
 				{
 					if ((myTime/100) >  weedw.getWWEndTime())
@@ -340,7 +374,7 @@ public class MainActivity extends Activity{
 						weedw.setWWEndInterval();
 					}
 				}
-				
+
 				if (bob.isBobHoldingWW())
 				{
 					if ((myTime/100) >  bob.getBobWWEndTime())
@@ -364,7 +398,7 @@ public class MainActivity extends Activity{
                     growTheGrass();
                     lastGrassGrowTime = myTime/100;
                 }
-				  
+
 				Canvas gameCanvas = holder.lockCanvas();
 
 				//refresh position of the rectangle so it follows the wasp.
@@ -379,7 +413,7 @@ public class MainActivity extends Activity{
 				myTime++;
 			}
 		}
-		
+
 		//this is what happens when the canvas is drawn
 		protected void canvasDraw(Canvas canvas){
 			drawPaint.setAlpha(255);
@@ -418,7 +452,7 @@ public class MainActivity extends Activity{
 				}
 				canvas.drawBitmap(hive.getHive(), hive.getHiveX(), hive.getHiveY(), drawPaint);
 			}
-			
+
 			if (bugBomb.showSmoke())
 			{
 				if (bugBomb.getSmokeRect() == null)
@@ -429,13 +463,13 @@ public class MainActivity extends Activity{
 					bugBomb.setSmokeRect();
 				}
 				if (bugBomb.getSmokeAnimateTime() <= 5)
-				{	
+				{
 					canvas.drawBitmap(bugBomb.getSmoke(), bugBomb.getSmokeX(), bugBomb.getSmokeY(), drawPaint);
 				}else{
 					canvas.drawBitmap(bugBomb.getSmoke2(), bugBomb.getSmokeX(), bugBomb.getSmokeY(), drawPaint);
 				}
 			}
-						
+
 			if (hive.showBrokenHive())
 			{
 				if (hive.getBrokenHiveTime() <= 15)
@@ -454,7 +488,7 @@ public class MainActivity extends Activity{
 					canvas.drawBitmap(hive.getBrokenhive3(), hive.getBrokenHiveX(), hive.getBrokenHiveY(), drawPaint);
 				}
 			}
-			
+
 			if (weedw.showWeedWacker())
 			{
 				if (weedw.getWWRect() == null) {
@@ -499,7 +533,7 @@ public class MainActivity extends Activity{
 				//canvas.drawRect(waspRects.get(i), rectPaint);
 
 				canvas.drawBitmap(wasp.getWasp(), wasp.getWaspFromList(i).x, wasp.getWaspFromList(i).y, drawPaint);
-				
+
 				//this is what occurs if the bob rectangle collides with a wasp rectangle.
 				if(Rect.intersects(bob.getBobRect(), wasp.getWaspRectFromList(i))){
 					if (bob.isBobHoldingWW())
@@ -565,7 +599,7 @@ public class MainActivity extends Activity{
                         .setAction("BugBomb")
                         .build());
 			}
-			
+
 			if(weedw.showWeedWacker() && Rect.intersects(weedw.getWWRect(), bob.getBobRect()))
 			{
                 // Bob has picked up the weed wacker
@@ -603,7 +637,7 @@ public class MainActivity extends Activity{
                 }
             }
         }
-		
+
 		public void showScores(){
         	runOnUiThread(new Runnable() {
             public void run() {
@@ -714,7 +748,7 @@ public class MainActivity extends Activity{
                 }
             });
 		}
-		
+
 		public void pause() {
 			threadOK = false;
 			while(true){
@@ -728,13 +762,13 @@ public class MainActivity extends Activity{
 			}
 			ViewThread = null;
 		}
-		
+
 		public void resume() {
 			threadOK = true;
 			ViewThread = new Thread(this);
 			ViewThread.start();
 		}
-		
+
 		//This method has a switch statement for finger actions on the bob.  What happens when you
 		//touch the bob, move the bob, or lift up your finger.
 		//@SuppressLint("ClickableViewAccessibility")
@@ -754,7 +788,9 @@ public class MainActivity extends Activity{
                 else if (touchX > pauseX && touchY > pauseY)
                 {
                     paused = true;
-                    showScores();
+                   // showScores();
+                    startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient,
+							getString(R.string.LEADERBOARD_ID)), REQUEST_LEADERBOARD);
                 }
 			}
 			break;
@@ -762,7 +798,7 @@ public class MainActivity extends Activity{
 			{
 				touchX = event.getRawX() - (bob.getBob().getWidth()/2);
 				touchY = (event.getRawY() - 200) - (bob.getBob().getHeight()/2);
-				
+
 				if(bob.isBobSelected()){
 					bob.setBobX((int) touchX);
 					bob.setBobY((int) touchY);
@@ -775,8 +811,30 @@ public class MainActivity extends Activity{
 			}
 			break;
 			} // end of switch
-			
+
 			return true;
 		}
 	}
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Player p = Games.Players.getCurrentPlayer(mGoogleApiClient);
+        String displayName;
+        if (p == null) {
+            //Log.w(TAG, "mGamesClient.getCurrentPlayer() is NULL!");
+            displayName = "???";
+        } else {
+            displayName = p.getDisplayName();
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        //Log.d(TAG, "onConnectionSuspended(): attempting to connect");
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        //TODO: Something useful
+    }
 }

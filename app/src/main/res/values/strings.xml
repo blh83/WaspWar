@@ -11,5 +11,6 @@
          Currently, this unit id is a test id and needs to be changed before going live-->
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="app_id">449817633900</string>
+    <string name="LEADERBOARD_ID">CgkI7Mjh2YsNEAIQCA</string>
 
 </resources>
